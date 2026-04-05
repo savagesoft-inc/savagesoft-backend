@@ -20,34 +20,67 @@ app.post("/generate", (req, res) => {
 <html>
 <head>
   <style>
-    body { margin: 0; background: black; color: white; text-align: center; }
-    canvas { background: #111; display: block; margin: auto; }
+    body {
+      margin: 0;
+      background: black;
+      color: white;
+      text-align: center;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+    }
+    canvas {
+      background: #111;
+      display: block;
+      margin: 20px auto;
+      border: 2px solid #00ffcc;
+    }
+    #status {
+      font-size: 20px;
+      margin-top: 10px;
+      color: #00ffcc;
+    }
   </style>
 </head>
 <body>
 <h1>Enemy Shooter</h1>
+<div id="status">Score: 0</div>
 <canvas id="game" width="400" height="400"></canvas>
 
 <script>
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
+const statusEl = document.getElementById("status");
 
-let player = { x: 180, y: 350, size: 20 };
-let enemy = { x: Math.random() * 380, y: 0, size: 20 };
+let player = { x: 190, y: 350, size: 20 };
+let enemy = { x: Math.random() * 360, y: 20, size: 20 };
 let score = 0;
+let gameOver = false;
 
-document.addEventListener("mousemove", (e) => {
-  player.x = e.offsetX;
+canvas.addEventListener("mousemove", (e) => {
+  const rect = canvas.getBoundingClientRect();
+  player.x = e.clientX - rect.left - player.size / 2;
+
+  if (player.x < 0) player.x = 0;
+  if (player.x > canvas.width - player.size) {
+    player.x = canvas.width - player.size;
+  }
 });
 
 function draw() {
-  ctx.clearRect(0, 0, 400, 400);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  ctx.fillStyle = "cyan";
+  ctx.fillStyle = "#00ffcc";
   ctx.fillRect(player.x, player.y, player.size, player.size);
 
   ctx.fillStyle = "red";
   ctx.fillRect(enemy.x, enemy.y, enemy.size, enemy.size);
+
+  ctx.fillStyle = "white";
+  ctx.fillText("Score: " + score, 10, 20);
+}
+
+function update() {
+  if (gameOver) return;
 
   enemy.y += 2;
 
@@ -56,23 +89,24 @@ function draw() {
     enemy.x < player.x + player.size &&
     enemy.x + enemy.size > player.x
   ) {
-    alert("Game Over! Score: " + score);
-    location.reload();
+    gameOver = true;
+    statusEl.textContent = "Game Over! Final Score: " + score;
+    return;
   }
 
-  if (enemy.y > 400) {
-    enemy.y = 0;
-    enemy.x = Math.random() * 380;
+  if (enemy.y > canvas.height) {
+    enemy.y = 20;
+    enemy.x = Math.random() * 360;
     score++;
+    statusEl.textContent = "Score: " + score;
   }
 
-  ctx.fillStyle = "white";
-  ctx.fillText("Score: " + score, 10, 20);
-
-  requestAnimationFrame(draw);
+  draw();
+  requestAnimationFrame(update);
 }
 
 draw();
+update();
 </script>
 </body>
 </html>
@@ -90,10 +124,18 @@ draw();
       font-family: Arial, sans-serif;
       text-align: center;
     }
+    button {
+      background: #00ffcc;
+      color: black;
+      border: none;
+      padding: 12px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 6px;
+    }
   </style>
 </head>
 <body>
-
 <h1>Simple Game</h1>
 <p>Click the button to increase score!</p>
 <button onclick="increaseScore()">Click me</button>
@@ -106,7 +148,6 @@ function increaseScore() {
   document.getElementById("score").innerText = "Score: " + score;
 }
 </script>
-
 </body>
 </html>
 `;
