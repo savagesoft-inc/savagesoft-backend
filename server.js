@@ -31,27 +31,31 @@ app.post("/generate", (req, res) => {
     canvas {
       background: #111;
       display: block;
-      margin: 20px auto;
+      margin: 10px auto;
       border: 2px solid #00ffcc;
     }
     #status {
-      font-size: 20px;
-      margin-top: 10px;
+      font-size: 18px;
+      margin-top: 8px;
       color: #00ffcc;
+    }
+    h1 {
+      margin: 8px 0 4px;
+      font-size: 24px;
     }
   </style>
 </head>
 <body>
 <h1>Enemy Shooter</h1>
 <div id="status">Score: 0</div>
-<canvas id="game" width="400" height="400"></canvas>
+<canvas id="game" width="400" height="320"></canvas>
 
 <script>
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 const statusEl = document.getElementById("status");
 
-let player = { x: 190, y: 350, size: 20 };
+let player = { x: 190, y: 280, size: 20 };
 let enemy = { x: Math.random() * 360, y: 20, size: 20 };
 let score = 0;
 let gameOver = false;
@@ -76,6 +80,7 @@ function draw() {
   ctx.fillRect(enemy.x, enemy.y, enemy.size, enemy.size);
 
   ctx.fillStyle = "white";
+  ctx.font = "16px Arial";
   ctx.fillText("Score: " + score, 10, 20);
 }
 
@@ -91,6 +96,7 @@ function update() {
   ) {
     gameOver = true;
     statusEl.textContent = "Game Over! Final Score: " + score;
+    draw();
     return;
   }
 
@@ -123,6 +129,7 @@ update();
       color: #00ffcc;
       font-family: Arial, sans-serif;
       text-align: center;
+      padding-top: 20px;
     }
     button {
       background: #00ffcc;
