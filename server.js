@@ -1,3 +1,4 @@
+const express = require("express");
 const cors = require("cors");
 
 const app = express();
@@ -5,7 +6,7 @@ app.use(cors());
 app.use(express.json());
 
 app.post("/generate", (req, res) => {
-  const prompt = (req.body.prompt || "Simple Game").toLowerCase();
+  const prompt = (req.body.prompt || "simple game").toLowerCase();
 
   let gameCode = "";
 
@@ -15,121 +16,107 @@ app.post("/generate", (req, res) => {
     prompt.includes("battle")
   ) {
     gameCode = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <style>
-          body {
-            margin: 0;
-            background: black;
-            color: #00ffcc;
-            font-family: Arial, sans-serif;
-            text-align: center;
-            overflow: hidden;
-          }
-          h2 { margin-top: 20px; }
-          #score { font-size: 24px; margin: 10px 0; }
-          #enemy {
-            width: 50px;
-            height: 50px;
-            background: hotpink;
-            border-radius: 50%;
-            position: absolute;
-            cursor: pointer;
-            box-shadow: 0 0 20px hotpink;
-          }
-        </style>
-      </head>
-      <body>
-        <h2>${prompt}</h2>
-        <div id="score">Score: 0</div>
-        <div id="enemy"></div>
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { margin: 0; background: black; color: white; text-align: center; }
+    canvas { background: #111; display: block; margin: auto; }
+  </style>
+</head>
+<body>
+<h1>Enemy Shooter</h1>
+<canvas id="game" width="400" height="400"></canvas>
 
-        <script>
-          let score = 0;
-          const enemy = document.getElementById("enemy");
-          const scoreEl = document.getElementById("score");
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
 
-          function moveEnemy() {
-            const maxX = window.innerWidth - 50;
-            const maxY = window.innerHeight - 50;
-            enemy.style.left = Math.random() * maxX + "px";
-            enemy.style.top = (80 + Math.random() * (maxY - 80)) + "px";
-          }
+let player = { x: 180, y: 350, size: 20 };
+let enemy = { x: Math.random() * 380, y: 0, size: 20 };
+let score = 0;
 
-          enemy.addEventListener("click", () => {
-            score++;
-            scoreEl.textContent = "Score: " + score;
-            moveEnemy();
-          });
+document.addEventListener("mousemove", (e) => {
+  player.x = e.offsetX;
+});
 
-          moveEnemy();
-          setInterval(moveEnemy, 1200);
-        </script>
-      </body>
-      </html>
-    `;
+function draw() {
+  ctx.clearRect(0, 0, 400, 400);
+
+  ctx.fillStyle = "cyan";
+  ctx.fillRect(player.x, player.y, player.size, player.size);
+
+  ctx.fillStyle = "red";
+  ctx.fillRect(enemy.x, enemy.y, enemy.size, enemy.size);
+
+  enemy.y += 2;
+
+  if (
+    enemy.y + enemy.size > player.y &&
+    enemy.x < player.x + player.size &&
+    enemy.x + enemy.size > player.x
+  ) {
+    alert("Game Over! Score: " + score);
+    location.reload();
+  }
+
+  if (enemy.y > 400) {
+    enemy.y = 0;
+    enemy.x = Math.random() * 380;
+    score++;
+  }
+
+  ctx.fillStyle = "white";
+  ctx.fillText("Score: " + score, 10, 20);
+
+  requestAnimationFrame(draw);
+}
+
+draw();
+</script>
+</body>
+</html>
+`;
   } else {
     gameCode = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <style>
-          body {
-            margin: 0;
-            background: black;
-            color: #00ffcc;
-            font-family: Arial, sans-serif;
-            text-align: center;
-            overflow: hidden;
-          }
-          h2 { margin-top: 20px; }
-          #score { font-size: 24px; margin: 10px 0; }
-          #target {
-            width: 60px;
-            height: 60px;
-            background: #00ffcc;
-            position: absolute;
-            border-radius: 12px;
-            cursor: pointer;
-            box-shadow: 0 0 20px #00ffcc;
-          }
-        </style>
-      </head>
-      <body>
-        <h2>${prompt}</h2>
-        <div id="score">Score: 0</div>
-        <div id="target"></div>
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      color: #00ffcc;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
 
-        <script>
-          let score = 0;
-          const target = document.getElementById("target");
-          const scoreEl = document.getElementById("score");
+<h1>Simple Game</h1>
+<p>Click the button to increase score!</p>
+<button onclick="increaseScore()">Click me</button>
+<h2 id="score">Score: 0</h2>
 
-          function moveTarget() {
-            const maxX = window.innerWidth - 60;
-            const maxY = window.innerHeight - 60;
-            target.style.left = Math.random() * maxX + "px";
-            target.style.top = (80 + Math.random() * (maxY - 80)) + "px";
-          }
+<script>
+let score = 0;
+function increaseScore() {
+  score++;
+  document.getElementById("score").innerText = "Score: " + score;
+}
+</script>
 
-          target.addEventListener("click", () => {
-            score++;
-            scoreEl.textContent = "Score: " + score;
-            moveTarget();
-          });
-
-          moveTarget();
-        </script>
-      </body>
-      </html>
-    `;
+</body>
+</html>
+`;
   }
 
   res.json({ code: gameCode });
 });
 
 const PORT = process.env.PORT || 3000;
+
 app.listen(PORT, "0.0.0.0", () => {
-  console.log("Savagesoft backend running on port " + PORT);
+  console.log("Savagesoft.ai running on port " + PORT);
 });
