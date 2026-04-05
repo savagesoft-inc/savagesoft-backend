@@ -5,17 +5,63 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+function includesAny(text, words) {
+  return words.some((word) => text.includes(word));
+}
+
 app.post("/generate", (req, res) => {
   const prompt = (req.body.prompt || "simple game").toLowerCase();
 
+  let gameType = "clicker";
+
+  if (
+    includesAny(prompt, [
+      "shooter", "shoot", "enemy", "battle", "fight", "combat",
+      "attack", "gun", "blaster"
+    ])
+  ) {
+    gameType = "shooter";
+  } else if (
+    includesAny(prompt, [
+      "dodge", "dodging", "avoid", "evade", "survive",
+      "survival", "don't get hit", "dont get hit",
+      "avoid enemies", "avoid blocks", "obstacles"
+    ])
+  ) {
+    gameType = "dodging";
+  } else if (
+    includesAny(prompt, [
+      "catch", "catching", "collect", "grab", "pick up",
+      "falling", "collect items", "gather"
+    ])
+  ) {
+    gameType = "catching";
+  } else if (
+    includesAny(prompt, [
+      "reaction", "reflex", "timing", "fast", "quick",
+      "speed test", "click fast", "reaction time"
+    ])
+  ) {
+    gameType = "reaction";
+  } else if (
+    includesAny(prompt, [
+      "maze", "labyrinth", "escape", "find the exit",
+      "puzzle maze", "maze game"
+    ])
+  ) {
+    gameType = "maze";
+  } else if (
+    includesAny(prompt, [
+      "click", "clicker", "tap", "tapping", "idle",
+      "button", "simple game"
+    ])
+  ) {
+    gameType = "clicker";
+  }
+
   let gameCode = "";
 
-  // 1) SHOOTER
-  if (
-    prompt.includes("enemy") ||
-    prompt.includes("shooter") ||
-    prompt.includes("battle")
-  ) {
+  if (gameType === "shooter") {
     gameCode = `
 <!DOCTYPE html>
 <html>
@@ -116,14 +162,7 @@ update();
 </body>
 </html>
 `;
-  }
-
-  // 2) DODGING GAME
-  else if (
-    prompt.includes("dodge") ||
-    prompt.includes("dodging") ||
-    prompt.includes("avoid")
-  ) {
+  } else if (gameType === "dodging") {
     gameCode = `
 <!DOCTYPE html>
 <html>
@@ -212,7 +251,7 @@ function update() {
     }
   }
 
-  obstacles = obstacles.filter(o => o.y < canvas.height + 30);
+  obstacles = obstacles.filter((o) => o.y < canvas.height + 30);
   survival = Math.floor(frames / 60);
   statusEl.textContent = "Survival Time: " + survival + " sec";
 
@@ -226,14 +265,7 @@ update();
 </body>
 </html>
 `;
-  }
-
-  // 3) CATCHING GAME
-  else if (
-    prompt.includes("catch") ||
-    prompt.includes("collect") ||
-    prompt.includes("falling")
-  ) {
+  } else if (gameType === "catching") {
     gameCode = `
 <!DOCTYPE html>
 <html>
@@ -327,14 +359,7 @@ update();
 </body>
 </html>
 `;
-  }
-
-  // 4) REACTION GAME
-  else if (
-    prompt.includes("reaction") ||
-    prompt.includes("fast") ||
-    prompt.includes("timing")
-  ) {
+  } else if (gameType === "reaction") {
     gameCode = `
 <!DOCTYPE html>
 <html>
@@ -413,14 +438,7 @@ box.onclick = () => {
 </body>
 </html>
 `;
-  }
-
-  // 5) MAZE GAME
-  else if (
-    prompt.includes("maze") ||
-    prompt.includes("escape") ||
-    prompt.includes("labyrinth")
-  ) {
+  } else if (gameType === "maze") {
     gameCode = `
 <!DOCTYPE html>
 <html>
@@ -432,15 +450,24 @@ box.onclick = () => {
       color: #00ffcc;
       text-align: center;
       font-family: Arial, sans-serif;
-      padding-top: 20px;
+      overflow: hidden;
+    }
+    h1 {
+      margin: 8px 0 4px;
+      font-size: 24px;
+    }
+    #status {
+      margin-bottom: 8px;
+      font-size: 18px;
     }
     #board {
       position: relative;
       width: 400px;
-      height: 320px;
-      margin: 20px auto;
+      height: 300px;
+      margin: 0 auto;
       background: #111;
       border: 2px solid #00ffcc;
+      overflow: hidden;
     }
     .wall {
       position: absolute;
@@ -456,28 +483,33 @@ box.onclick = () => {
     }
     #goal {
       position: absolute;
-      width: 24px;
-      height: 24px;
+      width: 20px;
+      height: 20px;
       background: yellow;
-      right: 10px;
-      bottom: 10px;
+      left: 360px;
+      top: 260px;
     }
   </style>
 </head>
 <body>
 <h1>Maze Game</h1>
 <div id="status">Use arrow keys to reach the yellow square</div>
+
 <div id="board">
   <div id="player"></div>
   <div id="goal"></div>
 
-  <div class="wall" style="left:60px; top:0; width:20px; height:220px;"></div>
-  <div class="wall" style="left:120px; top:100px; width:20px; height:220px;"></div>
-  <div class="wall" style="left:180px; top:0; width:20px; height:220px;"></div>
-  <div class="wall" style="left:240px; top:100px; width:20px; height:220px;"></div>
-  <div class="wall" style="left:300px; top:0; width:20px; height:220px;"></div>
-  <div class="wall" style="left:0; top:220px; width:140px; height:20px;"></div>
-  <div class="wall" style="left:180px; top:220px; width:140px; height:20px;"></div>
+  <div class="wall" style="left:50px; top:0px; width:20px; height:220px;"></div>
+  <div class="wall" style="left:120px; top:80px; width:20px; height:220px;"></div>
+  <div class="wall" style="left:190px; top:0px; width:20px; height:220px;"></div>
+  <div class="wall" style="left:260px; top:80px; width:20px; height:220px;"></div>
+  <div class="wall" style="left:330px; top:0px; width:20px; height:180px;"></div>
+
+  <div class="wall" style="left:0px; top:220px; width:140px; height:20px;"></div>
+  <div class="wall" style="left:190px; top:220px; width:140px; height:20px;"></div>
+
+  <div class="wall" style="left:70px; top:140px; width:50px; height:20px;"></div>
+  <div class="wall" style="left:210px; top:140px; width:50px; height:20px;"></div>
 </div>
 
 <script>
@@ -492,20 +524,12 @@ let y = 10;
 const size = 20;
 let won = false;
 
-function isColliding(nx, ny, el) {
-  const r1 = { left: nx, top: ny, right: nx + size, bottom: ny + size };
-  const rect = {
-    left: el.offsetLeft,
-    top: el.offsetTop,
-    right: el.offsetLeft + el.offsetWidth,
-    bottom: el.offsetTop + el.offsetHeight
-  };
-
+function isCollidingRect(ax, ay, aw, ah, bx, by, bw, bh) {
   return !(
-    r1.right <= rect.left ||
-    r1.left >= rect.right ||
-    r1.bottom <= rect.top ||
-    r1.top >= rect.bottom
+    ax + aw <= bx ||
+    ax >= bx + bw ||
+    ay + ah <= by ||
+    ay >= by + bh
   );
 }
 
@@ -520,10 +544,19 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "ArrowUp") ny -= 10;
   if (e.key === "ArrowDown") ny += 10;
 
-  if (nx < 0 || ny < 0 || nx > board.clientWidth - size || ny > board.clientHeight - size) return;
+  if (nx < 0 || ny < 0 || nx > board.clientWidth - size || ny > board.clientHeight - size) {
+    return;
+  }
 
   for (const wall of walls) {
-    if (isColliding(nx, ny, wall)) return;
+    const wx = wall.offsetLeft;
+    const wy = wall.offsetTop;
+    const ww = wall.offsetWidth;
+    const wh = wall.offsetHeight;
+
+    if (isCollidingRect(nx, ny, size, size, wx, wy, ww, wh)) {
+      return;
+    }
   }
 
   x = nx;
@@ -531,7 +564,12 @@ document.addEventListener("keydown", (e) => {
   player.style.left = x + "px";
   player.style.top = y + "px";
 
-  if (isColliding(x, y, goal)) {
+  const gx = goal.offsetLeft;
+  const gy = goal.offsetTop;
+  const gw = goal.offsetWidth;
+  const gh = goal.offsetHeight;
+
+  if (isCollidingRect(x, y, size, size, gx, gy, gw, gh)) {
     won = true;
     statusEl.textContent = "You escaped the maze!";
   }
@@ -540,10 +578,7 @@ document.addEventListener("keydown", (e) => {
 </body>
 </html>
 `;
-  }
-
-  // 6) DEFAULT CLICKER
-  else {
+  } else {
     gameCode = `
 <!DOCTYPE html>
 <html>
@@ -586,7 +621,7 @@ function increaseScore() {
 `;
   }
 
-  res.json({ code: gameCode });
+  res.json({ code: gameCode, detectedType: gameType });
 });
 
 const PORT = process.env.PORT || 3000;
