@@ -486,7 +486,7 @@ box.onclick = () => {
       width: 20px;
       height: 20px;
       background: yellow;
-      left: 360px;
+      left: 370px;
       top: 260px;
     }
   </style>
@@ -499,17 +499,11 @@ box.onclick = () => {
   <div id="player"></div>
   <div id="goal"></div>
 
-  <div class="wall" style="left:50px; top:0px; width:20px; height:220px;"></div>
-  <div class="wall" style="left:120px; top:80px; width:20px; height:220px;"></div>
-  <div class="wall" style="left:190px; top:0px; width:20px; height:220px;"></div>
-  <div class="wall" style="left:260px; top:80px; width:20px; height:220px;"></div>
-  <div class="wall" style="left:330px; top:0px; width:20px; height:180px;"></div>
-
-  <div class="wall" style="left:0px; top:220px; width:140px; height:20px;"></div>
-  <div class="wall" style="left:190px; top:220px; width:140px; height:20px;"></div>
-
-  <div class="wall" style="left:70px; top:140px; width:50px; height:20px;"></div>
-  <div class="wall" style="left:210px; top:140px; width:50px; height:20px;"></div>
+  <div class="wall" style="left:70px; top:0px; width:20px; height:220px;"></div>
+  <div class="wall" style="left:140px; top:80px; width:20px; height:220px;"></div>
+  <div class="wall" style="left:210px; top:0px; width:20px; height:220px;"></div>
+  <div class="wall" style="left:280px; top:80px; width:20px; height:220px;"></div>
+  <div class="wall" style="left:350px; top:0px; width:20px; height:180px;"></div>
 </div>
 
 <script>
